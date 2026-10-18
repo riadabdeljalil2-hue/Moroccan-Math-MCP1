@@ -18,7 +18,7 @@ export function createMoroccanMathMcpServer(): McpServer {
       level_filter: z
         .string()
         .optional()
-        .describe('تصفية حسب المستوى الدراسي: 3APIC (ثالثة إعدادي)، TCS (جذع مشترك علمي)، 1BAC_SM، 2BAC_SM، 2BAC_PC_SVT'),
+        .describe('تصفية حسب المستوى الدراسي: 1AC (الأولى إعدادي - الحزمة الذهبية)، 3APIC (ثالثة إعدادي)، TCS (جذع مشترك علمي)، 1BAC_SM، 2BAC_SM، 2BAC_PC_SVT'),
       domain_filter: z
         .string()
         .optional()
@@ -176,7 +176,7 @@ export function createMoroccanMathMcpServer(): McpServer {
         .string()
         .min(2, 'يجب تزويد معرف درس صالح')
         .describe(
-          'معرف الدرس في المنهاج المغربي (أمثلة تجريبية: 3apic-pythagore, 3apic-systemes, tcs-arithmetique, tcs-second-degre, 2bac-limites-continuite)'
+          'معرف الدرس في المنهاج المغربي (أمثلة: les-math-1ac-precedence, les-math-1ac-dev-fact, les-math-1ac-mediatrice-detail, 3apic-pythagore, tcs-arithmetique, tcs-second-degre, 2bac-limites-continuite)'
         ),
       skill: z
         .string()

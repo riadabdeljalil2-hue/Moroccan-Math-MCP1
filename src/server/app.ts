@@ -163,12 +163,15 @@ export async function runInlineDiagnostics() {
   const t1Start = Date.now();
   try {
     const summary = await defaultCurriculumRepository.getCurriculumSummary();
-    const passed = summary.totalLessonsLoaded > 0 && summary.levelsCovered.length >= 3 && summary.isPilotBaseline === true;
+    const passed =
+      summary.totalLessonsLoaded >= 10 &&
+      summary.levelsCovered.some(l => l.levelId === '1AC') &&
+      summary.goldPacksActive.includes('MOROCCO-MATH-1AC-GOLD-v1');
     tests.push({
-      name: 'list_curriculum: استرجاع ملخص المنهاج والمستويات المغطاة',
+      name: 'list_curriculum: استرجاع ملخص المنهاج والحزمة الذهبية للأولى إعدادي (1AC)',
       category: 'Curriculum Tool',
       passed,
-      details: `تم تحميل ${summary.totalLessonsLoaded} درساً عبر ${summary.levelsCovered.length} مستويات دراسية. تمييز البيانات التجريبية: ${summary.isPilotBaseline}`,
+      details: `تم تحميل ${summary.totalLessonsLoaded} درساً، مع تفعيل الحزمة الذهبية 1AC الرسمية و ${summary.levelsCovered.length} مستويات.`,
       durationMs: Date.now() - t1Start
     });
   } catch (e: any) {

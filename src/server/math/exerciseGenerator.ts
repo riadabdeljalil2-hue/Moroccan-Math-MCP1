@@ -81,6 +81,12 @@ export class MoroccanExerciseGenerator {
 
     // Tailored generator according to lesson
     switch (lesson.id) {
+      case 'les-math-1ac-precedence':
+        return this.generate1ACOpsExercise(lesson, difficulty, chosenSkill, index);
+      case 'les-math-1ac-dev-fact':
+        return this.generate1ACDevFactExercise(lesson, difficulty, chosenSkill, index);
+      case 'les-math-1ac-mediatrice-detail':
+        return this.generate1ACMediatriceExercise(lesson, difficulty, chosenSkill, index);
       case '3apic-pythagore':
         return this.generatePythagoreExercise(lesson, difficulty, chosenSkill, index);
       case '3apic-systemes':
@@ -94,6 +100,229 @@ export class MoroccanExerciseGenerator {
       default:
         return this.generateGenericCurriculumExercise(lesson, difficulty, chosenSkill, index);
     }
+  }
+
+  // 0.1 1AC Operations & Precedence (Gold Standard)
+  private static generate1ACOpsExercise(
+    lesson: MoroccanLesson,
+    diff: ExerciseDifficulty,
+    skill: string,
+    idx: number
+  ): GeneratedExercise {
+    if (diff === 'easy') {
+      return {
+        id: `EX-1AC-OPS-EASY-${idx}`,
+        lessonId: lesson.id,
+        lessonTitleAr: lesson.titleAr,
+        lessonTitleFr: lesson.titleFr,
+        level: lesson.level,
+        skill: 'حساب تعبير عددي باحترام أسبقية الضرب والقسمة على الجمع والطرح',
+        difficulty: 'easy',
+        statementAr: 'احسب قيمة التعبير العددي التالي مع تبيان مراحل الحساب:\nA = 15 + 4 × 3 - 7',
+        statementFr: 'Calculer l\'expression numérique suivante en respectant la priorité des opérations:\nA = 15 + 4 × 3 - 7',
+        hintsAr: ['إنجاز عملية الضرب 4 × 3 أولاً قبل الجمع والطرح.'],
+        referenceSolution: {
+          stepsAr: [
+            '1. الأسبقية للضرب: 4 × 3 = 12',
+            '2. تعويض الناتج في التعبير: A = 15 + 12 - 7',
+            '3. إنجاز الجمع والطرح من اليسار إلى اليمين: 15 + 12 = 27 ثم 27 - 7 = 20'
+          ],
+          stepsFr: [
+            '1. Priorité à la multiplication: 4 × 3 = 12',
+            '2. Remplacement: A = 15 + 12 - 7',
+            '3. Calcul de gauche à droite: 27 - 7 = 20'
+          ],
+          finalAnswer: 'A = 20',
+          testVerificationKey: 'A=20'
+        },
+        evaluationRubricAr: [
+          '0.5 نقطة: تحديد أسبقية عملية الضرب',
+          '0.5 نقطة: الحساب السليم للجمع والطرح من اليسار إلى اليمين'
+        ],
+        isPilotData: false,
+        contentTag: 'OFFICIAL_CURRICULUM_BASELINE'
+      };
+    }
+
+    if (diff === 'medium') {
+      return {
+        id: `EX-1AC-OPS-MED-${idx}`,
+        lessonId: lesson.id,
+        lessonTitleAr: lesson.titleAr,
+        lessonTitleFr: lesson.titleFr,
+        level: lesson.level,
+        skill: 'حساب تعبير مركب يحتوي على قسمة وضرب وجمع وطرح',
+        difficulty: 'medium',
+        statementAr: 'احسب بدقة قيمة التعبير التالي مع تبيان الخطوات:\nB = 12 + 8 ÷ 2 × 3 - 5',
+        statementFr: 'Calculer la valeur de l\'expression suivante:\nB = 12 + 8 ÷ 2 × 3 - 5',
+        hintsAr: ['تذكر أن القسمة والضرب لهما نفس الرتبة ويحسبان بالترتيب من اليسار إلى اليمين.'],
+        referenceSolution: {
+          stepsAr: [
+            '1. القسمة والضرب أولاً من اليسار: 8 ÷ 2 = 4',
+            '2. الضرب تالياً: 4 × 3 = 12',
+            '3. الجمع والطرح من اليسار: 12 + 12 - 5 = 24 - 5 = 19'
+          ],
+          stepsFr: [
+            '1. Division de gauche à droite: 8 ÷ 2 = 4',
+            '2. Multiplication: 4 × 3 = 12',
+            '3. Addition et soustraction: 12 + 12 - 5 = 19'
+          ],
+          finalAnswer: 'B = 19',
+          testVerificationKey: 'B=19'
+        },
+        evaluationRubricAr: [
+          '0.75 نقطة: احترام تساوي رتبتي القسمة والضرب والحساب من اليسار',
+          '0.75 نقطة: التوصل للنتيجة النهائية 19'
+        ],
+        isPilotData: false,
+        contentTag: 'OFFICIAL_CURRICULUM_BASELINE'
+      };
+    }
+
+    // Hard (with nested brackets and parentheses)
+    return {
+      id: `EX-1AC-OPS-HARD-${idx}`,
+      lessonId: lesson.id,
+      lessonTitleAr: lesson.titleAr,
+      lessonTitleFr: lesson.titleFr,
+      level: lesson.level,
+      skill: 'حساب تعابير مركبة تتضمن أقواس داخلية ومعقوفات خارجية وتوزيعية',
+      difficulty: 'hard',
+      statementAr: 'احسب التعبير التالي مع تبيان خطوات الحساب بالتفصيل:\nA = 45 - [3 × (5 + 2) - 6]',
+      statementFr: 'Calculer l\'expression avec crochets et parenthèses:\nA = 45 - [3 × (5 + 2) - 6]',
+      hintsAr: ['ابدأ بحساب ما بداخل الأقواس الأكثر داخلية (5 + 2).'],
+      referenceSolution: {
+        stepsAr: [
+          '1. ما بداخل القوسين الداخليين: 5 + 2 = 7',
+          '2. ما بداخل المعقوفتين (الضرب أولاً): 3 × 7 = 21',
+          '3. إتمام حساب المعقوفتين: 21 - 6 = 15',
+          '4. الطرح النهائي من خارج المعقوفتين: 45 - 15 = 30'
+        ],
+        stepsFr: [
+          '1. Parenthèses intérieures: 5 + 2 = 7',
+          '2. Dans les crochets: 3 × 7 = 21',
+          '3. Fin des crochets: 21 - 6 = 15',
+          '4. Soustraction finale: 45 - 15 = 30'
+        ],
+        finalAnswer: 'A = 30',
+        testVerificationKey: 'A=30'
+      },
+      evaluationRubricAr: [
+        '0.5 نقطة: إنجاز الأقواس الداخلية',
+        '0.75 نقطة: إنجاز ما بداخل المعقوفات',
+        '0.75 نقطة: الحساب النهائي'
+      ],
+      isPilotData: false,
+      contentTag: 'OFFICIAL_CURRICULUM_BASELINE'
+    };
+  }
+
+  // 0.2 1AC Développement et Factorisation
+  private static generate1ACDevFactExercise(
+    lesson: MoroccanLesson,
+    diff: ExerciseDifficulty,
+    skill: string,
+    idx: number
+  ): GeneratedExercise {
+    if (diff === 'hard') {
+      return {
+        id: `EX-1AC-DEV-HARD-${idx}`,
+        lessonId: lesson.id,
+        lessonTitleAr: lesson.titleAr,
+        lessonTitleFr: lesson.titleFr,
+        level: lesson.level,
+        skill: 'تعميل تعبير جبري باستخراج العامل المشترك العددي والحرفي',
+        difficulty: 'hard',
+        statementAr: 'عمّل التعبير الجبري التالي باستخراج العامل المشترك:\nF = 7x(x + 3) - 14(x + 3)',
+        statementFr: 'Factoriser l\'expression en identifiant le facteur commun:\nF = 7x(x + 3) - 14(x + 3)',
+        hintsAr: ['العامل المشترك الواضح هو (x + 3)، ويوجد عامل عددي مشترك بين 7 و 14 هو 7.'],
+        referenceSolution: {
+          stepsAr: [
+            '1. تحديد العامل المشترك الواضح بين الحدين: (x + 3)',
+            '2. تحديد العامل العددي المشترك: 14 = 7 × 2، إذن 7 عامل مشترك',
+            '3. استخراج 7(x + 3): F = 7(x + 3) [x - 2]'
+          ],
+          stepsFr: [
+            '1. Facteur commun évident: (x + 3)',
+            '2. Facteur numérique commun: 7 (car 14 = 7 × 2)',
+            '3. Factorisation complète: F = 7(x + 3)(x - 2)'
+          ],
+          finalAnswer: 'F = 7(x + 3)(x - 2)',
+          testVerificationKey: 'F=7(x+3)(x-2)'
+        },
+        isPilotData: false,
+        contentTag: 'OFFICIAL_CURRICULUM_BASELINE'
+      };
+    }
+
+    return {
+      id: `EX-1AC-DEV-${diff.toUpperCase()}-${idx}`,
+      lessonId: lesson.id,
+      lessonTitleAr: lesson.titleAr,
+      lessonTitleFr: lesson.titleFr,
+      level: lesson.level,
+      skill: 'نشر وتبسيط تعبير جبري بتوزيع الضرب',
+      difficulty: diff,
+      statementAr: 'انشر وبسط التعبير التالي:\nE = 3(2x + 5)',
+      statementFr: 'Développer et réduire l\'expression:\nE = 3(2x + 5)',
+      referenceSolution: {
+        stepsAr: [
+          'تطبيق خاصية التوزيعية: k(a + b) = ka + kb',
+          'E = 3 × 2x + 3 × 5 = 6x + 15'
+        ],
+        stepsFr: [
+          'Distributivité simple: k(a + b) = ka + kb',
+          'E = 3 × 2x + 3 × 5 = 6x + 15'
+        ],
+        finalAnswer: 'E = 6x + 15',
+        testVerificationKey: 'E=6x+15'
+      },
+      isPilotData: false,
+      contentTag: 'OFFICIAL_CURRICULUM_BASELINE'
+    };
+  }
+
+  // 0.3 1AC Médiatrice et Inégalité triangulaire
+  private static generate1ACMediatriceExercise(
+    lesson: MoroccanLesson,
+    diff: ExerciseDifficulty,
+    skill: string,
+    idx: number
+  ): GeneratedExercise {
+    return {
+      id: `EX-1AC-MED-${diff.toUpperCase()}-${idx}`,
+      lessonId: lesson.id,
+      lessonTitleAr: lesson.titleAr,
+      lessonTitleFr: lesson.titleFr,
+      level: lesson.level,
+      skill: 'تطبيق المتفاوتة المثلثية للتحقق من إمكانية إنشاء مثلث',
+      difficulty: diff,
+      statementAr: 'هل يمكن إنشاء مثلث ABC أطوال أضلاعه هي: 7cm و 4cm و 2cm؟ علل جوابك بتطبيق الخاصية المناسبة.',
+      statementFr: 'Peut-on construire un triangle de côtés 7cm, 4cm et 2cm ? Justifier avec la propriété convenable.',
+      hintsAr: ['في أي مثلث، يجب أن يكون طول أطول ضلع أصغر قطعا من مجموع طولي الضلعين الآخرين.'],
+      referenceSolution: {
+        stepsAr: [
+          '1. نحدد أطول ضلع في المعطيات: 7 cm',
+          '2. نحسب مجموع طولي الضلعين الآخرين: 4 cm + 2 cm = 6 cm',
+          '3. نقارن: 7 > 6، أي أن طول أطول ضلع أكبر من مجموع الضلعين الآخرين.',
+          'الخلاصة: المتفاوتة المثلثية غير محققة، وبالتالي يستحيل إنشاء هذا المثلث.'
+        ],
+        stepsFr: [
+          '1. Le plus grand côté mesure: 7 cm',
+          '2. Somme des deux autres côtés: 4 + 2 = 6 cm',
+          '3. Or 7 > 6, l\'inégalité triangulaire n\'est pas vérifiée.',
+          'Conclusion: Il est impossible de construire ce triangle.'
+        ],
+        finalAnswer: 'يستحيل إنشاء المثلث (7 > 4 + 2)',
+        testVerificationKey: 'impossible_7>4+2'
+      },
+      evaluationRubricAr: [
+        '0.5 نقطة: تحديد أطول ضلع وحساب مجموع الضلعين الآخرين',
+        '0.5 نقطة: المقارنة الصريحة وتطبيق المتفاوتة المثلثية'
+      ],
+      isPilotData: false,
+      contentTag: 'OFFICIAL_CURRICULUM_BASELINE'
+    };
   }
 
   // 1. Pythagore

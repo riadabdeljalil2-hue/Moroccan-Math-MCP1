@@ -187,8 +187,9 @@ export default function App() {
                 <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono border border-emerald-500/30">
                   v1.0.0
                 </span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-medium border border-amber-500/30">
-                  بيانات تجريبية (Pilot)
+                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium border border-emerald-500/30 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-300" />
+                  <span>1AC Gold Pack + Pilot Baseline</span>
                 </span>
               </div>
               <p className="text-xs text-slate-400">
@@ -352,6 +353,7 @@ export default function App() {
                         className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-emerald-500"
                       >
                         <option value="ALL">جميع المستويات المغطاة (All Levels)</option>
+                        <option value="1AC">السنة الأولى إعدادي - الحزمة الذهبية الرسمية (1AC Gold Pack)</option>
                         <option value="3APIC">السنة الثالثة ثانوي إعدادي (3APIC)</option>
                         <option value="TCS">الجذع المشترك العلمي والتكنولوجي (TCS)</option>
                         <option value="1BAC_SM">الأولى باك علوم رياضية (1BAC_SM)</option>
@@ -360,7 +362,7 @@ export default function App() {
                       </select>
                     </div>
                     <p className="text-slate-400 text-xs">
-                      أداة <code className="text-emerald-400">list_curriculum</code> تُرجع المستويات والدروس المحملة وتوثيق مراجعها وحالتها التجريبية.
+                      أداة <code className="text-emerald-400">list_curriculum</code> تُرجع المستويات والدروس المحملة وتوثيق مراجعها وحالتها (الحزمة الذهبية الرسمية 1AC + العينات التجريبية).
                     </p>
                   </div>
                 )}
@@ -374,13 +376,13 @@ export default function App() {
                         type="text"
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        placeholder="مثال: فيثاغورس، طاليس، نظمات، Arithmétique، Continuité..."
+                        placeholder="مثال: أسبقية العمليات، فيثاغورس، واسط قطعة، النشر، المتفاوتة المثلثية..."
                         className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       <span className="text-slate-400">اقتراحات سريعة:</span>
-                      {['فيثاغورس', 'systèmes', 'الحسابيات', 'دلتا', 'tvi'].map(kw => (
+                      {['أسبقية العمليات', 'المتفاوتة المثلثية', 'النشر والتعميل', 'فيثاغورس', 'systèmes', 'الحسابيات'].map(kw => (
                         <button
                           key={kw}
                           onClick={() => setSearchQuery(kw)}
@@ -447,6 +449,9 @@ export default function App() {
                         onChange={e => setGenLessonId(e.target.value)}
                         className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-emerald-500"
                       >
+                        <option value="les-math-1ac-precedence">les-math-1ac-precedence (أسبقية العمليات والأقواس - 1AC Gold)</option>
+                        <option value="les-math-1ac-dev-fact">les-math-1ac-dev-fact (النشر والتعميل - 1AC Gold)</option>
+                        <option value="les-math-1ac-mediatrice-detail">les-math-1ac-mediatrice-detail (واسط قطعة والمتفاوتة المثلثية - 1AC Gold)</option>
                         <option value="3apic-pythagore">3apic-pythagore (مبرهنة فيثاغورس - 3APIC)</option>
                         <option value="3apic-systemes">3apic-systemes (نظمات معادلتين - 3APIC)</option>
                         <option value="tcs-arithmetique">tcs-arithmetique (الحسابيات في N - TCS)</option>
@@ -733,6 +738,20 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
+                {
+                  code: '1AC',
+                  nameAr: 'السنة الأولى ثانوي إعدادي (الحزمة الذهبية المعتمدة)',
+                  nameFr: '1ère Année Collégiale (Pack Gold Standard)',
+                  cycle: 'الثانوي الإعدادي',
+                  isGold: true,
+                  lessons: [
+                    { id: 'les-math-1ac-precedence', titleAr: 'أسبقية العمليات والأقواس', titleFr: 'Ordre des opérations' },
+                    { id: 'les-math-1ac-dev-fact', titleAr: 'النشر والتعميل والحساب الحرفي', titleFr: 'Développement et factorisation' },
+                    { id: 'les-math-1ac-mediatrice-detail', titleAr: 'واسط قطعة والمتفاوتة المثلثية', titleFr: 'Médiatrice et inégalité triangulaire' },
+                    { id: 'les-math-1ac-triangle-props', titleAr: 'المثلث: مجموع الزوايا والأنواع الخاصة', titleFr: 'Le triangle et somme des angles' },
+                    { id: 'les-math-1ac-angles-types', titleAr: 'الزوايا والتوازي والقواطع', titleFr: 'Angles et droites parallèles' }
+                  ]
+                },
                 {
                   code: '3APIC',
                   nameAr: 'السنة الثالثة ثانوي إعدادي',

@@ -40,20 +40,26 @@ async function runTestSuite() {
   console.log('\x1b[1m[Suite 1: Curriculum Repository & Pilot Data]\x1b[0m');
   try {
     const summary = await defaultCurriculumRepository.getCurriculumSummary();
-    assert(summary.totalLessonsLoaded >= 8, 'list_curriculum returns at least 8 pilot lessons');
-    assert(summary.isPilotBaseline === true, 'Curriculum is explicitly tagged as pilot baseline');
+    assert(summary.totalLessonsLoaded >= 13, 'list_curriculum returns at least 13 lessons (8 pilot + 5 gold 1AC)');
+    assert(summary.goldPacksActive.includes('MOROCCO-MATH-1AC-GOLD-v1'), 'Curriculum activates MOROCCO-MATH-1AC-GOLD-v1 pack');
     assert(
+      summary.levelsCovered.some(l => l.levelId === '1AC') &&
       summary.levelsCovered.some(l => l.levelId === '3APIC') &&
       summary.levelsCovered.some(l => l.levelId === 'TCS') &&
       summary.levelsCovered.some(l => l.levelId === '2BAC_PC_SVT'),
-      'Curriculum covers 3APIC, TCS, and 2BAC stages'
+      'Curriculum covers 1AC, 3APIC, TCS, and 2BAC stages'
     );
 
-    // Search Arabic
+    // Search Arabic (3APIC)
     const searchAr = await defaultCurriculumRepository.searchLessons('فيثاغورس');
     assert(searchAr.totalMatches > 0, 'search_lessons finds lessons with Arabic query ("فيثاغورس")');
     assert(searchAr.lessons[0].id === '3apic-pythagore', 'search_lessons correctly prioritizes 3APIC Pythagore');
-    assert(searchAr.lessons[0].reference.status === 'pilot_data', 'Returned lesson has pilot_data status');
+
+    // Search 1AC Gold Pack concept & common mistake
+    const search1AC = await defaultCurriculumRepository.searchLessons('أسبقية العمليات');
+    assert(search1AC.totalMatches > 0, 'search_lessons finds 1AC Gold Pack concept ("أسبقية العمليات")');
+    assert(search1AC.lessons[0].id === 'les-math-1ac-precedence', 'search_lessons matches 1AC precedence lesson');
+    assert(search1AC.lessons[0].commonMistakes!.length > 0, '1AC lesson returns common mistakes for didactics');
 
     // Search French
     const searchFr = await defaultCurriculumRepository.searchLessons('systèmes');
@@ -148,6 +154,19 @@ async function runTestSuite() {
       count: 1
     });
     assert(exTcs.exercises[0].statementAr.includes('x²'), 'Second degree exercise includes quadratic equation');
+
+    // Generator for 1AC Gold Standard Precedence
+    const ex1AC = await MoroccanExerciseGenerator.generate({
+      lessonId: 'les-math-1ac-precedence',
+      difficulty: 'medium',
+      count: 1
+    });
+    assert(
+      ex1AC.exercises[0].lessonId === 'les-math-1ac-precedence' &&
+      ex1AC.exercises[0].contentTag === 'OFFICIAL_CURRICULUM_BASELINE' &&
+      ex1AC.exercises[0].referenceSolution.testVerificationKey === 'B=19',
+      'Generates 1AC Gold Standard exercise with official baseline tag and B=19 verification key'
+    );
   } catch (err: any) {
     assert(false, 'Suite 3 execution failed', err.message);
   }
@@ -252,13 +271,13 @@ async function runTestSuite() {
     assert(toolNames.includes('generate_exercises'), 'Discovered tool: generate_exercises');
     assert(toolNames.length === 4, 'All 4 required tools are registered and discovered');
 
-    // 6.3 Tool Invocation 1: list_curriculum
+    // 6.3 Tool Invocation 1: list_curriculum (1AC Gold Pack)
     const callListRes: any = await client.callTool({
       name: 'list_curriculum',
-      arguments: { level_filter: '3APIC' }
+      arguments: { level_filter: '1AC' }
     });
     const listData = JSON.parse(callListRes.content[0].text);
-    assert(listData.levelsCovered.some((l: any) => l.levelId === '3APIC'), 'MCP client called list_curriculum successfully');
+    assert(listData.levelsCovered.some((l: any) => l.levelId === '1AC'), 'MCP client called list_curriculum for 1AC successfully');
 
     // 6.4 Tool Invocation 2: search_lessons
     const callSearchRes: any = await client.callTool({

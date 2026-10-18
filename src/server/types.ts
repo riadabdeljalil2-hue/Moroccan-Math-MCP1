@@ -6,6 +6,7 @@
 export type EducationCycle = 'college' | 'lycee_qualifiant';
 
 export type MoroccanEducationLevel =
+  | '1AC'         // الأولى إعدادي (1ère Année Collégiale - 1AC)
   | '3APIC'       // السنة الثالثة ثانوي إعدادي (3ème Année Collège)
   | 'TCS'         // الجذع المشترك العلمي والتكنولوجي (Tronc Commun Scientifique)
   | '1BAC_SM'     // الأولى بكالوريا علوم رياضية (1ère Bac Sciences Mathématiques)
@@ -30,6 +31,29 @@ export interface CurriculumSourceReference {
   noteFr: string;
 }
 
+export interface LessonConcept {
+  id: string;
+  name: string;
+  formalDefinition: string;
+  summary?: string;
+  keywords?: string[];
+}
+
+export interface CommonMistake {
+  id: string;
+  mistakeDescription: string;
+  whyItHappens?: string;
+  howToCorrect?: string;
+}
+
+export interface LessonExample {
+  id: string;
+  title: string;
+  prompt: string;
+  stepByStepSolution: string[];
+  finalAnswer: string;
+}
+
 export interface MoroccanLesson {
   id: string;
   code: string;
@@ -44,6 +68,10 @@ export interface MoroccanLesson {
   targetedSkills: string[];
   isPilotData: boolean;
   reference: CurriculumSourceReference;
+  concepts?: LessonConcept[];
+  commonMistakes?: CommonMistake[];
+  examples?: LessonExample[];
+  curriculumPackId?: string;
 }
 
 export type ExerciseDifficulty = 'easy' | 'medium' | 'hard';

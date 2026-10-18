@@ -1,5 +1,6 @@
 import { MoroccanLesson, MoroccanEducationLevel } from '../types.ts';
 import { PILOT_MOROCCAN_LESSONS } from './pilotData.ts';
+import { load1ACGoldLessons } from './goldPackLoader.ts';
 
 export interface CurriculumFilterOptions {
   level?: MoroccanEducationLevel | string;
@@ -20,10 +21,11 @@ export interface CurriculumSummary {
     levelNameFr: string;
     cycle: string;
     lessonCount: number;
-    lessons: { id: string; titleAr: string; titleFr: string; code: string }[];
+    lessons: { id: string; titleAr: string; titleFr: string; code: string; isOfficial?: boolean }[];
   }[];
   officialNoticeAr: string;
   officialNoticeFr: string;
+  goldPacksActive: string[];
 }
 
 export interface SearchLessonsResult {
@@ -31,7 +33,7 @@ export interface SearchLessonsResult {
   totalMatches: number;
   lessons: (MoroccanLesson & { matchScore: number; matchReasons: string[] })[];
   curriculumContext: {
-    datasetStatus: 'pilot_data';
+    datasetStatus: 'hybrid_official_and_pilot';
     dataSource: string;
     disclaimerAr: string;
     disclaimerFr: string;
@@ -48,8 +50,14 @@ export interface ICurriculumProvider {
 export class PilotCurriculumRepository implements ICurriculumProvider {
   private lessons: MoroccanLesson[];
 
-  constructor(initialLessons: MoroccanLesson[] = PILOT_MOROCCAN_LESSONS) {
-    this.lessons = initialLessons;
+  constructor(initialLessons?: MoroccanLesson[]) {
+    if (initialLessons) {
+      this.lessons = initialLessons;
+    } else {
+      // Merge official 1AC Gold Standard Pack with pilot lessons for other levels
+      const gold1AC = load1ACGoldLessons();
+      this.lessons = [...gold1AC, ...PILOT_MOROCCAN_LESSONS];
+    }
   }
 
   async getCurriculumSummary(filter?: CurriculumFilterOptions): Promise<CurriculumSummary> {
@@ -67,6 +75,11 @@ export class PilotCurriculumRepository implements ICurriculumProvider {
     }
 
     const levelDescriptions: Record<string, { ar: string; fr: string; cycle: string }> = {
+      '1AC': {
+        ar: 'السنة الأولى ثانوي إعدادي (الحزمة الذهبية الرسمية المعتمدة - مسار عام ودولي)',
+        fr: '1ère Année Collégiale (1AC - Pack Gold Standard)',
+        cycle: 'college'
+      },
       '3APIC': {
         ar: 'السنة الثالثة ثانوي إعدادي (دورة عادية ودولية)',
         fr: '3ème Année Collégiale',
@@ -123,7 +136,8 @@ export class PilotCurriculumRepository implements ICurriculumProvider {
           id: i.id,
           code: i.code,
           titleAr: i.titleAr,
-          titleFr: i.titleFr
+          titleFr: i.titleFr,
+          isOfficial: !i.isPilotData
         }))
       };
     });
@@ -131,12 +145,15 @@ export class PilotCurriculumRepository implements ICurriculumProvider {
     return {
       systemName: 'المنهاج المغربي للرياضيات (Moroccan Mathematics Curriculum)',
       country: 'المملكة المغربية (Kingdom of Morocco)',
-      version: '1.0.0-pilot',
-      isPilotBaseline: true,
+      version: '1.2.0-gold-hybrid',
+      isPilotBaseline: false, // Now powered by official 1AC Gold Pack + pilot baseline
       totalLessonsLoaded: filtered.length,
       levelsCovered,
-      officialNoticeAr: 'تنبيه منهاجي: هذه البيانات تمثل عينة تجريبية (Pilot Data) موثقة ومطابقة لتوجيهات وزارة التربية الوطنية والتعليم الأولي والرياضة المغربية لأغراض الاختبار وتطوير الأدوات.',
-      officialNoticeFr: 'Avis officiel: ces données représentent un échantillon pilote (Pilot Data) conforme aux orientations pédagogiques officielles du Ministère de l\'Éducation Nationale du Maroc.'
+      officialNoticeAr:
+        'المستوى 1AC مزود بالحزمة الذهبية الرسمية المكتملة (MOROCCO-MATH-1AC-GOLD-v1) مع المفاهيم والتمثلات والأخطاء الشائعة، بينما بقية المستويات مزودة بعينات تجريبية موثقة.',
+      officialNoticeFr:
+        'Le niveau 1AC intègre le Pack Gold Standard officiel (MOROCCO-MATH-1AC-GOLD-v1) avec concepts didactiques et remédiation des erreurs, complété par des données pilotes pour les autres niveaux.',
+      goldPacksActive: ['MOROCCO-MATH-1AC-GOLD-v1']
     };
   }
 
@@ -180,6 +197,38 @@ export class PilotCurriculumRepository implements ICurriculumProvider {
         reasons.push('تطابق كود أو معرف الدرس');
       }
 
+      // Check concepts (definitions, keywords)
+      if (lesson.concepts) {
+        for (const cpt of lesson.concepts) {
+          if (cpt.name.toLowerCase().includes(rawQuery)) {
+            score += 35;
+            reasons.push(`تطابق مباشر في المفهوم الرياضي ("${cpt.name}")`);
+          }
+          if (cpt.formalDefinition.toLowerCase().includes(rawQuery)) {
+            score += 25;
+            reasons.push(`تطابق في التعريف الرسمي للمفهوم ("${cpt.name}")`);
+          }
+          if (cpt.keywords?.some(k => k.toLowerCase().includes(rawQuery))) {
+            score += 20;
+            reasons.push(`تطابق في الكلمات المفتاحية للمفهوم ("${cpt.name}")`);
+          }
+        }
+      }
+
+      // Check common mistakes (didactics)
+      if (lesson.commonMistakes) {
+        for (const mst of lesson.commonMistakes) {
+          if (mst.mistakeDescription.toLowerCase().includes(rawQuery)) {
+            score += 30;
+            reasons.push('تطابق في تشخيص التمثلات والأخطاء الشائعة للتلاميذ');
+          }
+          if (mst.howToCorrect && mst.howToCorrect.toLowerCase().includes(rawQuery)) {
+            score += 25;
+            reasons.push('تطابق في استراتيجية التصحيح الديداكتيكي للخطأ');
+          }
+        }
+      }
+
       // Token matches in objectives, skills, prerequisites
       for (const token of cleanTokens) {
         if (titleArNorm.includes(token)) score += 15;
@@ -221,10 +270,10 @@ export class PilotCurriculumRepository implements ICurriculumProvider {
       totalMatches: matches.length,
       lessons: matches,
       curriculumContext: {
-        datasetStatus: 'pilot_data',
-        dataSource: 'المنهاج المغربي للرياضيات - عينة تجريبية موثقة (Moroccan Curriculum Pilot Dataset)',
-        disclaimerAr: 'جميع الدروس والبيانات المسترجعة موسومة بأنها تجريبية ومأخوذة من الأطر المرجعية والتوجيهات الرسمية.',
-        disclaimerFr: 'Toutes les leçons renvoyées sont étiquetées comme données pilotes issues des cadres de référence officiels.'
+        datasetStatus: 'hybrid_official_and_pilot',
+        dataSource: 'المنهاج المغربي للرياضيات - الحزمة الذهبية الرسمية 1AC + عينات تجريبية',
+        disclaimerAr: 'دروس السنة الأولى إعدادي معتمدة رسمياً ومرفقة بالتمثلات الخاطئة، وبقية المستويات عينات تجريبية موثقة.',
+        disclaimerFr: 'Les leçons 1AC sont officielles (Gold Pack), les autres niveaux sont des données pilotes conformes.'
       }
     };
   }
