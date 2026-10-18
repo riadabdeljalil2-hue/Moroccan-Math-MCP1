@@ -1,0 +1,6 @@
+{
+  "name": "Moroccan Math MCP Server",
+  "description": "خادم Model Context Protocol (MCP) موثوق ومستقل لأدوات الرياضيات وفق المنهاج المغربي مع دعم Streamable HTTP والنشر على Vercel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
