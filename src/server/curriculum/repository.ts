@@ -1,4 +1,4 @@
-import { MoroccanLesson, MoroccanEducationLevel } from '../types.ts';
+import type { MoroccanLesson, MoroccanEducationLevel } from '../types.ts';
 import { PILOT_MOROCCAN_LESSONS } from './pilotData.ts';
 import { load1ACGoldLessons } from './goldPackLoader.ts';
 

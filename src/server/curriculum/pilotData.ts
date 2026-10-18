@@ -1,4 +1,4 @@
-import { MoroccanLesson } from '../types.ts';
+import type { MoroccanLesson } from '../types.ts';
 
 /**
  * Pilot Data for Moroccan Mathematics Curriculum

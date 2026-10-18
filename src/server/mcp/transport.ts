@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { createMoroccanMathMcpServer } from './server.ts';

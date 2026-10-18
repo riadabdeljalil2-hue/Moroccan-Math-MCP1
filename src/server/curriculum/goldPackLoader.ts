@@ -1,5 +1,5 @@
-import { MoroccanLesson, MathDomain } from '../types.ts';
-import goldPackData from '../data/morocco-math-1ac-gold.json';
+import type { MoroccanLesson, MathDomain } from '../types.ts';
+import goldPackData from '../data/morocco-math-1ac-gold.json' with { type: 'json' };
 
 export function load1ACGoldLessons(): MoroccanLesson[] {
   const manifest = goldPackData.manifest;
